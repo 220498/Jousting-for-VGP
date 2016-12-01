@@ -1,0 +1,12 @@
+if (p1Jump == false)
+            {
+                if (kb.IsKeyDown(Keys.W))
+                {
+                    p1YSpeed -= .04;
+                    p1Jump = true;
+                }
+            }
+            else
+            {
+                p1Jump = false;
+            }
