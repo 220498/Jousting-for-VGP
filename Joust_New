@@ -99,11 +99,11 @@ public class Game1 : Microsoft.Xna.Framework.Game
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            if (kb.IsKeyDown(Keys.A))
+            if (kb.IsKeyDown(Keys.A) && !(p1XSpeed < -4))
             {
                 p1XSpeed -= .05;
             }
-            else if (kb.IsKeyDown(Keys.D))
+            else if (kb.IsKeyDown(Keys.D) && !(p1XSpeed > 4))
             {
                 p1XSpeed += .05;
             }
