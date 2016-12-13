@@ -1,0 +1,291 @@
+public class Game1 : Microsoft.Xna.Framework.Game
+    {
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+        SpriteFont font;
+        Vector2 winnerPos;
+
+        Boolean end;
+
+        Rectangle p1Rect;
+        double p1YSpeed;
+        double p1XSpeed;
+        Boolean p1Jump;
+        double p1y;
+        double p1x;
+
+        Rectangle p2Rect;
+        double p2YSpeed;
+        double p2XSpeed;
+        Boolean p2Jump;
+        double p2y;
+        double p2x;
+
+        Rectangle bottom;
+        Rectangle plat1Rect;
+
+        Texture2D pText;
+
+        int screenWidth;
+        int screenHeight;
+
+        String Winner;
+
+        Boolean Rand;
+        Boolean Rand2;
+
+        public Game1()
+        {
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+        }
+
+        /// <summary>
+        /// Allows the game to perform any initialization it needs to before starting to run.
+        /// This is where it can query for any required services and load any non-graphic
+        /// related content.  Calling base.Initialize will enumerate through any components
+        /// and initialize them as well.
+        /// </summary>
+        protected override void Initialize()
+        {
+            // TODO: Add your initialization logic here
+            screenWidth = graphics.GraphicsDevice.Viewport.Width;
+            screenHeight = graphics.GraphicsDevice.Viewport.Height;
+
+            Winner = "";
+            winnerPos = new Vector2(50, 50);
+
+            bottom = new Rectangle(0, screenHeight, screenWidth, 20);
+            plat1Rect = new Rectangle(200, 200, 100, 20);
+
+            p1y = 0;
+            p2y = 0;
+            p1x = 0;
+            p2x = screenHeight - 20;
+
+            Rand = true;
+            Rand2 = true;
+
+            end = false;
+
+            p1Rect = new Rectangle(50, 50, 20, 20);
+            p2Rect = new Rectangle(200, 50, 20, 20);
+            p1YSpeed = 0;
+            p2YSpeed = 0;
+            p1XSpeed = 0;
+            p2XSpeed = 0;
+            p1Jump = false;
+            p2Jump = false;
+
+            base.Initialize();
+        }
+
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            pText = Content.Load<Texture2D>("White Square");
+            font = Content.Load<SpriteFont>("SpriteFont1");
+
+
+            // TODO: use this.Content to load your game content here
+        }
+
+        /// <summary>
+        /// UnloadContent will be called once per game and is the place to unload
+        /// all content.
+        /// </summary>
+        protected override void UnloadContent()
+        {
+            // TODO: Unload any non ContentManager content here
+        }
+
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+            // Allows the game to exit
+            KeyboardState kb = Keyboard.GetState();
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                this.Exit();
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// P1 physics
+            if (kb.IsKeyDown(Keys.A) && !(p1XSpeed < -4))
+            {
+                p1XSpeed -= .05;
+            }
+            if (kb.IsKeyDown(Keys.D) && !(p1XSpeed > 4))
+            {
+                p1XSpeed += .05;
+            }
+            
+            if (p1Rect.Intersects(bottom) || (p1Rect.Intersects(plat1Rect) && Rand)) //add or other platforms
+            {
+                p1YSpeed = 0;
+            }
+            else
+            {
+                p1YSpeed += .02;
+            }
+
+            if (kb.IsKeyDown(Keys.W))
+            {
+                p1YSpeed -= .04;
+            }
+
+            if(p1XSpeed < 0 && !(kb.IsKeyDown(Keys.D) && kb.IsKeyDown(Keys.A)))
+            {
+                p1XSpeed += .01;
+            }
+            else if(p1XSpeed > 0)
+            {
+                p1XSpeed -= .01;
+            }
+
+            Rand = true;
+
+            p1y += p1YSpeed;
+            p1x += p1XSpeed;
+            p1Rect.Y = (int)p1y;
+            p1Rect.X = (int)p1x;
+            // add p2XSpeed
+
+            if (p1Rect.Intersects(bottom)) //add or other platforms
+            {
+                p1y = bottom.Top - p1Rect.Height +1; //or patform top
+            }
+            if (p1Rect.Intersects(plat1Rect) && p1Rect.Y >= plat1Rect.Y + plat1Rect.Height - 5) // intersect with bottom
+            {
+                p1YSpeed = -p1YSpeed / 2;
+                p1y = plat1Rect.Bottom + 1;
+                Rand = false;
+            }
+            if (p1Rect.Intersects(plat1Rect) && (p1Rect.Bottom < plat1Rect.Y)) // intersect with top
+            {
+                p1y = plat1Rect.Top - p1Rect.Height +1; //or patform top
+                Rand = true;
+            }
+            if (p1Rect.Intersects(plat1Rect) && p1Rect.Left < plat1Rect.Right && p1Rect.Left > plat1Rect.Right-5 && p1Rect.Bottom > plat1Rect.Y+2) /////////////////////////////////// fix top and bottom collisions witht this
+            {
+                p1XSpeed = -p1XSpeed;
+            }
+            if (p1Rect.Intersects(plat1Rect) && p1Rect.Right > plat1Rect.Left && p1Rect.Right < plat1Rect.Left + 5 && p1Rect.Bottom > plat1Rect.Y + 2)
+            {
+                p1XSpeed = -p1XSpeed;
+            }
+
+
+
+
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// P2 physics
+            if (kb.IsKeyDown(Keys.Left) && !(p2XSpeed < -4))
+            {
+                p2XSpeed -= .05;
+            }
+            if (kb.IsKeyDown(Keys.Right) && !(p2XSpeed > 4))
+            {
+                p2XSpeed += .05;
+            }
+
+            if (p2Rect.Intersects(bottom) || (p2Rect.Intersects(plat1Rect) && Rand2)) //add or other platforms
+            {
+                p2YSpeed = 0;
+            }
+            else
+            {
+                p2YSpeed += .02;
+            }
+
+            if (kb.IsKeyDown(Keys.Up))
+            {
+                p2YSpeed -= .04;
+            }
+
+            if (p2XSpeed < 0 && !(kb.IsKeyDown(Keys.Right) && kb.IsKeyDown(Keys.Left)))
+            {
+                p2XSpeed += .01;
+            }
+            else if (p2XSpeed > 0)
+            {
+                p2XSpeed -= .01;
+            }
+
+            Rand2 = true;
+
+            p2y += p2YSpeed;
+            p2x += p2XSpeed;
+            p2Rect.Y = (int)p2y;
+            p2Rect.X = (int)p2x;
+            // add p2XSpeed
+
+            if (p2Rect.Intersects(bottom)) //add or other platforms
+            {
+                p2y = bottom.Top - p2Rect.Height + 1; //or patform top
+            }
+            if (p2Rect.Intersects(plat1Rect) && p2Rect.Y >= plat1Rect.Y + plat1Rect.Height - 5) // intersect with bottom
+            {
+                p2YSpeed = -p2YSpeed / 2;
+                p2y = plat1Rect.Bottom + 1;
+                Rand2 = false;
+            }
+            if (p2Rect.Intersects(plat1Rect) && (p2Rect.Bottom < plat1Rect.Y)) // intersect with top
+            {
+                p2y = plat1Rect.Top - p2Rect.Height + 1; //or patform top
+                Rand2 = true;
+            }
+            if (p2Rect.Intersects(plat1Rect) && p2Rect.Left < plat1Rect.Right && p2Rect.Left > plat1Rect.Right - 5 && p2Rect.Bottom > plat1Rect.Y + 2) /////////////////////////////////// fix top and bottom collisions witht this
+            {
+                p2XSpeed = -p2XSpeed;
+            }
+            if (p2Rect.Intersects(plat1Rect) && p2Rect.Right > plat1Rect.Left && p2Rect.Right < plat1Rect.Left + 5 && p2Rect.Bottom > plat1Rect.Y + 2)
+            {
+                p2XSpeed = -p2XSpeed;
+            }
+
+
+            ////////////////////////////////////////////////////////////Kill
+
+            if(p1Rect.Intersects(p2Rect) && !end)
+            {
+                if(p1Rect.Y > p2Rect.Y)
+                {
+                    Winner = "Player2";
+                }
+                if (p1Rect.Y < p2Rect.Y)
+                {
+                    Winner = "Player1";
+                }
+                end = true;
+            }
+            
+            // TODO: Add your update logic here
+            base.Update(gameTime);
+        }
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            spriteBatch.Draw(pText, p1Rect, Color.White);
+            spriteBatch.Draw(pText, plat1Rect, Color.White);
+            spriteBatch.Draw(pText, p2Rect, Color.White);
+            spriteBatch.DrawString(font, Winner, winnerPos, Color.White);
+            spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+    }
